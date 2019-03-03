@@ -1,12 +1,14 @@
 package com.example.webscrapping;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -27,6 +29,7 @@ import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 
 public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.MyViewHolder> {
@@ -37,7 +40,8 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.My
     public class MyViewHolder extends RecyclerView.ViewHolder {
         public TextView username, time, description,relatedsector,relatedschemes,likesnumber;
         public ImageView contentimg;
-        public RelativeLayout like,comment,share;
+        public RelativeLayout like,comment,reportasspam;
+        public Button recommend,dismiss;
 
         public MyViewHolder(View view) {
             super(view);
@@ -47,10 +51,12 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.My
             contentimg = view.findViewById(R.id.content_img);
             like = view.findViewById(R.id.likelayout);
             comment = view.findViewById(R.id.commentlayout);
-            share = view.findViewById(R.id.sharelayout);
+            reportasspam = view.findViewById(R.id.reportasspam);
             relatedschemes = view.findViewById(R.id.relatedschemes);
             relatedsector = view.findViewById(R.id.relatedsector);
-            likesnumber = view.findViewById(R.id.likenumber);
+            likesnumber = view.findViewById(R.id.likecount);
+            recommend = view.findViewById(R.id.recommendtoda);
+            dismiss = view.findViewById(R.id.dismiss);
 
         }
 
@@ -79,6 +85,43 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.My
         holder.description.setText(desc);
         holder.time.setText(modalClass.getTimestamp());
         holder.likesnumber.setText(String.valueOf(modalClass.getLikes()));
+        holder.recommend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+//                DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("MPNode").child("hajipur")
+//                        .child("MPrecommendation");
+//
+//                HashMap<String,Object> map = new HashMap<>();
+//                map.put("related-sector",modalClass.getRelatedsector());
+//                map.put("related-scheme",modalClass.getRelatedscheme());
+//                map.put("")
+
+                Intent recommendworkintwnt = new Intent(context,RecommendWork.class);
+                context.startActivity(recommendworkintwnt);
+
+
+
+            }
+        });
+
+        holder.dismiss.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("complaints").child(modalClass.getUid());
+                mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        mDatabase.setValue(null);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+            }
+        });
 
 //        String imgurl = modalClass.getImglink();
 //
@@ -86,36 +129,6 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.My
 //        Glide.with(context).load(ref).into(holder.contentimg);
 
 
-        holder.like.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                 DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("Suggestions").child(modalClass.getUid());
-                 mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
-                     @Override
-                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                         for (DataSnapshot ds : dataSnapshot.getChildren()){
-
-                             //TODO update likesBy by Adding current user uid and update the like node by children count of likes by node
-
-                         }
-                     }
-
-                     @Override
-                     public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                     }
-                 });
-            }
-        });
-
-        holder.comment.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                //TODO update comment node and show all comments in a dialog or expandable list view
-
-            }
-        });
     }
 
     @Override
